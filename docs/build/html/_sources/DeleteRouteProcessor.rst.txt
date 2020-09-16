@@ -1,0 +1,7 @@
+DeleteRouteProcessor module
+===========================
+
+.. automodule:: DeleteRouteProcessor
+   :members:
+   :undoc-members:
+   :show-inheritance:

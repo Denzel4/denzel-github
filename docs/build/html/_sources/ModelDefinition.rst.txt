@@ -1,0 +1,7 @@
+ModelDefinition module
+======================
+
+.. automodule:: ModelDefinition
+   :members:
+   :undoc-members:
+   :show-inheritance:

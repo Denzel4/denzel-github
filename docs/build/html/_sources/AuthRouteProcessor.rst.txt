@@ -1,0 +1,7 @@
+AuthRouteProcessor module
+=========================
+
+.. automodule:: AuthRouteProcessor
+   :members:
+   :undoc-members:
+   :show-inheritance:
