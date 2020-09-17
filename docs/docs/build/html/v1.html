@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>v1 package &#8212; GPU VM 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="v1-package">
+<h1>v1 package<a class="headerlink" href="#v1-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-agent-module">
+<h2>v1.agent module<a class="headerlink" href="#v1-agent-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-annotation-module">
+<h2>v1.annotation module<a class="headerlink" href="#v1-annotation-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-attribute-module">
+<h2>v1.attribute module<a class="headerlink" href="#v1-attribute-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-auth-module">
+<h2>v1.auth module<a class="headerlink" href="#v1-auth-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-camera-module">
+<h2>v1.camera module<a class="headerlink" href="#v1-camera-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-category-module">
+<h2>v1.category module<a class="headerlink" href="#v1-category-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-dataset-module">
+<h2>v1.dataset module<a class="headerlink" href="#v1-dataset-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-v1.errors">
+<span id="v1-errors-module"></span><h2>v1.errors module<a class="headerlink" href="#module-v1.errors" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="v1.errors.bad_request">
+<code class="sig-prename descclassname">v1.errors.</code><code class="sig-name descname">bad_request</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">'The browser (or proxy) sent a request that this server could not understand.'</span></em>, <em class="sig-param"><span class="n">exc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#v1.errors.bad_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="v1.errors.forbidden">
+<code class="sig-prename descclassname">v1.errors.</code><code class="sig-name descname">forbidden</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">&quot;You don't have the permission to access the requested resource. It is either read-protected or not readable by the server.&quot;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#v1.errors.forbidden" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="v1.errors.not_found">
+<code class="sig-prename descclassname">v1.errors.</code><code class="sig-name descname">not_found</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">'The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#v1.errors.not_found" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="v1.errors.server_error">
+<code class="sig-prename descclassname">v1.errors.</code><code class="sig-name descname">server_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em><span class="sig-paren">)</span><a class="headerlink" href="#v1.errors.server_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="v1.errors.unauthorized">
+<code class="sig-prename descclassname">v1.errors.</code><code class="sig-name descname">unauthorized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">error</span><span class="o">=</span><span class="default_value">'Unauthorized'</span></em>, <em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">&quot;The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.&quot;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#v1.errors.unauthorized" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="v1-image-module">
+<h2>v1.image module<a class="headerlink" href="#v1-image-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-inference-module">
+<h2>v1.inference module<a class="headerlink" href="#v1-inference-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v1-models-module">
+<h2>v1.models module<a class="headerlink" href="#v1-models-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-v1.monitoring">
+<span id="v1-monitoring-module"></span><h2>v1.monitoring module<a class="headerlink" href="#module-v1.monitoring" title="Permalink to this headline">¶</a></h2>
+<p>from project.server.handlers.database.monitoring import next_inference, calendar, select_all_inference
+from project.server.inference.inference_result import *
+import tensorflow as tf
+import json</p>
+<p>AUTOTUNE = tf.data.experimental.AUTOTUNE
+CONFIG_FILE = ‘config_SC.json’
+MEM_PER_MODEL = 10000</p>
+<dl class="simple">
+<dt>with open(CONFIG_FILE) as f:</dt><dd><p>config = json.load(f)</p>
+</dd>
+</dl>
+<p>CONFIG_DICT = config[‘InferenceDetails’]
+DATA_DIR = config[‘DATA_DIR’]
+CAMERA_LIST = list(CONFIG_DICT.keys())
+print(“Found {} Cameras in {}”.format(len(CAMERA_LIST), CONFIG_FILE))
+print(“List of Cameras : “, CAMERA_LIST)</p>
+<p>gpus = physical_devices_list_to_dict(tf.config.list_physical_devices(‘GPU’))
+cpus = physical_devices_list_to_dict(tf.config.list_physical_devices(‘CPU’))
+print(“Found GPUs : “, gpus)
+print(“Found CPUs : “, cpus)
+logical_devices_dict = get_device_to_model_map(gpu_dict=gpus, cpu_dict=cpus, model_list=CAMERA_LIST, memory_per_model=MEM_PER_MODEL)
+for key in logical_devices_dict.keys():</p>
+<blockquote>
+<div><p>print(‘Camera {} is mapped to {}’.format(key, logical_devices_dict[key]))</p>
+</div></blockquote>
+<p>weight_file_path_dict = get_weight_file_path_dict(config_dict=CONFIG_DICT, data_dir=DATA_DIR)
+model_dict = get_and_load_models(weight_file_path_dict=weight_file_path_dict, logical_devices_dict=logical_devices_dict)
+data_generator_dict = get_datagenrator_dict(config_dict=CONFIG_DICT, data_dir=DATA_DIR)</p>
+<dl>
+<dt>def insert_inference():</dt><dd><p>all_output = []
+print(“Hello”)
+for key in data_generator_dict.keys():</p>
+<blockquote>
+<div><dl class="simple">
+<dt>try:</dt><dd><p>new_batch = next(iter(data_generator_dict[key].get_dataset()))
+ai_manager_config = get_AI_manager_details(CONFIG_DICT)</p>
+</dd>
+<dt>except Exception as e:</dt><dd><p>return jsonify({“status”: “complete”, “camera_ID”:key})</p>
+</dd>
+</dl>
+<p>orientation = data_generator_dict[key].orientation
+output_dict = run_inference_on_one_image(image_batch=new_batch, base_model=model_dict[key], threshold=CONFIG_DICT[key][‘Thresold’], num_ref_images=data_generator_dict[key].total_ref_sample, camera_ID=key, orientation=orientation, ip_shape=data_generator_dict[key].input_shape)
+all_output.append(output_dict)
+response_object = {“views”: all_output, “label”: output_dict[“batch_result”], “status”: “active”, “ai_manager_config”: ai_manager_config}
+next_inference(output_dict, ai_manager_config)</p>
+</div></blockquote>
+<p>return response_object</p>
+</dd>
+<dt>def get_all_inference():</dt><dd><p>return select_all_inference()</p>
+</dd>
+<dt>def get_calendar():</dt><dd><p>start_date = request.args.get(‘from’, default = ‘2020-01-01 12:01:01’, type = str)
+end_date = request.args.get(‘to’, default = ‘2021-01-01 12:01:01’, type = str)
+return calendar(start_date, end_date)</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="v1-user-module">
+<h2>v1.user module<a class="headerlink" href="#v1-user-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-v1">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-v1" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">GPU VM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Liyokov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/v1.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
