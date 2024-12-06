@@ -1,0 +1,5 @@
+select 
+
+    * 
+
+from  public.fx_rates__2019
