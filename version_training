@@ -1,0 +1,423 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Elmo Hr System \n",
+    "\n",
+    "**03-09-2024**\n",
+    "\n",
+    "This notebook is purposed to test the Elmo API. Can we get access and receive data from the system?\n",
+    "\n",
+    "\n",
+    "**Read the docs**\n",
+    "\n",
+    "Summarised documentation has been done for the API and can be found through the link below:\n",
+    "[Our ELMO API Documentation](https://docs.google.com/document/d/1JAUqZP99RHakvkWynVvo3BsBgKbYWUz7/edit?usp=sharing&ouid=113498385446897089874&rtpof=true&sd=true).   \n",
+    "To access their documentation [CLICK HERE](https://developer.elmotalent.com.au) "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Modules"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd # Data manipulation-processing,preprocessing\n",
+    "import requests     # Make web requests\n",
+    "import civis        # Civis python API \n",
+    "import os"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#initialize Civis Client\n",
+    "client = civis.APIClient()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Secrets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "client_id = os.environ['ELMO_CLIENT_ID_PASSWORD']\n",
+    "client_secret=os.environ['ELMO_CLIENT_SECRET_PASSWORD']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "CLIENT_ID =client_id\n",
+    "CLIENT_SECRET = client_secret\n",
+    "TOKEN_URL = 'https://api.elmotalent.com.au/oauth/token'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_access_token(client_id, client_secret, token_url):\n",
+    "    \"\"\"\n",
+    "    Function to get the OAuth 2.0 access token.\n",
+    "    \n",
+    "        data : holds creds for the POST request to get the access token\n",
+    "        \n",
+    "        Returns Access Token\n",
+    "    \"\"\"\n",
+    "    \n",
+    "    data = {\n",
+    "        'client_id': client_id,\n",
+    "        'client_secret': client_secret,\n",
+    "        'grant_type': 'client_credentials'\n",
+    "    }\n",
+    "\n",
+    "    # Send the request to get the access token\n",
+    "    response = requests.post(token_url, data=data)\n",
+    "    \n",
+    "    # Check if the request was successful reference with the documentation\n",
+    "    if response.status_code == 200:\n",
+    "        # Parse the JSON response and extract the access token\n",
+    "        token_data = response.json()\n",
+    "        access_token = token_data.get('access_token')\n",
+    "        return access_token\n",
+    "    else:\n",
+    "        raise Exception(f\"Failed to obtain access token: {response.status_code} - {response.text}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def flatten_nested_data(data):\n",
+    "    \"\"\"\n",
+    "    This function will  handle nested objects.\n",
+    "    \n",
+    "    data : Json object\n",
+    "    \"\"\"\n",
+    "    flattened_data = []\n",
+    "    \n",
+    "    for record in data:\n",
+    "        flat_record = {}\n",
+    "        for key, value in record.items():\n",
+    "            if isinstance(value, dict):\n",
+    "                # Flatten the nested dictionary\n",
+    "                for sub_key, sub_value in value.items():\n",
+    "                    flat_record[f\"{key}_{sub_key}\"] = sub_value\n",
+    "            else:\n",
+    "                flat_record[key] = value\n",
+    "        flattened_data.append(flat_record)\n",
+    "    \n",
+    "    return pd.DataFrame(flattened_data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def make_api_request(access_token, api_url,page=1):\n",
+    "    \"\"\"\n",
+    "    Make  an authenticated API request using the access token.\n",
+    "    \n",
+    "    For more error information look into the documentation above.\n",
+    "    \"\"\"\n",
+    "    # Set up the headers with the Bearer token\n",
+    "    headers = {\n",
+    "        'Authorization': f'Bearer {access_token}'\n",
+    "    }\n",
+    "\n",
+    "    # Add the page parameter to the URL if necessary\n",
+    "    if page > 1:\n",
+    "        api_url += f'?page={page}'\n",
+    "\n",
+    "    # Send the GET request to the API endpoint\n",
+    "    response = requests.get(api_url, headers=headers)\n",
+    "\n",
+    "\n",
+    "    nested_entity = ['employees', 'leave-requests', 'leave-types']\n",
+    "    if response.status_code == 200:\n",
+    "        data = response.json()\n",
+    "        \n",
+    "        # If the data is nested, try to flatten it or extract the list\n",
+    "        if isinstance(data, dict):\n",
+    "            #  main data is under a key like 'results' or similar\n",
+    "            for key in data:\n",
+    "                if isinstance(data[key], list):\n",
+    "                    data = data[key]\n",
+    "                    break\n",
+    "            else:\n",
+    "                raise ValueError(\"No list found in the API response to convert to DataFrame.\")\n",
+    "        \n",
+    "        # If this is the employees' data, flatten the schema\n",
+    "\n",
+    "        if any(entity in url for entity in nested_entity):\n",
+    "            return flatten_nested_data(data),response\n",
+    "        else:\n",
+    "            return pd.DataFrame(data),response\n",
+    "    else:\n",
+    "        raise Exception(f\"Failed to fetch data from {url}: {response.status_code} - {response.text}\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def entity_to_dataframe(response_data):\n",
+    "    \"\"\"\n",
+    "    Save the API response to a dataframe.\n",
+    "    \n",
+    "    The data frame should be named after the entity \n",
+    "    \n",
+    "    e.g users,positions\n",
+    "    \"\"\"\n",
+    "    # Convert the response data to a DataFrame\n",
+    "    df = pd.DataFrame(response_data)\n",
+    "\n",
+    "    # Display the DataFrame first 5 rows\n",
+    "    print(df.head())\n",
+    "\n",
+    "    # Save the DataFrame to a CSV file \n",
+    "    df.to_csv('api_response_data.csv', index=False)\n",
+    "    print(\"Data saved to users_data.csv\")\n",
+    "    return df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def save_data_to_civis(df, table_name):\n",
+    "    \"\"\"\n",
+    "     Save a DataFrame to Civis.\n",
+    "    \"\"\"\n",
+    "    civis.io.dataframe_to_civis(df, \n",
+    "                                database=873,  # use your database name here\n",
+    "                                table=str('gpap_staging.')+ str('elmo_')+table_name,\n",
+    "                                existing_table_rows='append')\n",
+    "    print(f\"Data saved to Civis table: {table_name}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# ge the access token; this is a post to Elmo\n",
+    "access_token = get_access_token(CLIENT_ID, CLIENT_SECRET, TOKEN_URL)\n",
+    "#uncomment to print the access token\n",
+    "#print(f\"Access Token: {access_token}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Load Data to GPAP Schema"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Processing https://api.elmotalent.com.au/core/v1/users...\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?itemsPerPage=30&page=1\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?page=2&itemsPerPage=30\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?page=3&itemsPerPage=30\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?page=4&itemsPerPage=30\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?page=5&itemsPerPage=30\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?page=6&itemsPerPage=30\n",
+      "Data saved to Civis table: users\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/users?page=7&itemsPerPage=30\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/users. Skipping...\n",
+      "Processing https://api.elmotalent.com.au/core/v1/onboarding-users...\n",
+      "Data saved to Civis table: onboardingusers\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/onboarding-users?itemsPerPage=30&page=1\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/onboarding-users. Skipping...\n",
+      "Processing https://api.elmotalent.com.au/core/v1/departments...\n",
+      "Data saved to Civis table: departments\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/departments?itemsPerPage=30&page=1\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/departments. Skipping...\n",
+      "Processing https://api.elmotalent.com.au/core/v1/locations...\n",
+      "Data saved to Civis table: locations\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/locations?itemsPerPage=30&page=1\n",
+      "Data saved to Civis table: locations\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/locations?page=2&itemsPerPage=30\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/locations. Skipping...\n",
+      "Processing https://api.elmotalent.com.au/core/v1/positions...\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?itemsPerPage=30&page=1\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?page=2&itemsPerPage=30\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?page=3&itemsPerPage=30\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?page=4&itemsPerPage=30\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?page=5&itemsPerPage=30\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?page=6&itemsPerPage=30\n",
+      "Data saved to Civis table: positions\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/positions?page=7&itemsPerPage=30\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/positions. Skipping...\n",
+      "Processing https://api.elmotalent.com.au/core/v1/employees...\n",
+      "Data saved to Civis table: employees\n",
+      "--------------------------------------------------------------------\n",
+      "\n",
+      "Processing https://api.elmotalent.com.au/core/v1/leave-requests...\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/leave-requests. Skipping...\n",
+      "Processing https://api.elmotalent.com.au/core/v1/leave-types...\n",
+      "Data saved to Civis table: leavetype\n",
+      "--------------------------------------------------------------------\n",
+      "https://api.elmotalent.com.au/core/v1/leave-types?itemsPerPage=30&page=1\n",
+      "No more data for https://api.elmotalent.com.au/core/v1/leave-types. Skipping...\n",
+      "All Data Has Been Successfully Loaded gpap staging\n"
+     ]
+    }
+   ],
+   "source": [
+    "# URLs and their corresponding table names\n",
+    "urls_to_tables = {\n",
+    "        'https://api.elmotalent.com.au/core/v1/users': 'users',\n",
+    "        'https://api.elmotalent.com.au/core/v1/onboarding-users': 'onboardingusers',\n",
+    "        'https://api.elmotalent.com.au/core/v1/departments': 'departments',\n",
+    "        'https://api.elmotalent.com.au/core/v1/locations': 'locations',\n",
+    "        'https://api.elmotalent.com.au/core/v1/positions': 'positions',\n",
+    "        'https://api.elmotalent.com.au/core/v1/employees': 'employees',\n",
+    "        'https://api.elmotalent.com.au/core/v1/leave-requests': 'leaverequests',\n",
+    "        'https://api.elmotalent.com.au/core/v1/leave-types':'leavetype'\n",
+    "    }\n",
+    "\n",
+    "# Loop through each URL and save the data to Civis\n",
+    "\n",
+    "            \n",
+    "for url, table_name in urls_to_tables.items():\n",
+    "    \n",
+    "        print(f\"Processing {url}...\")\n",
+    "\n",
+    "        page = 1\n",
+    "        while True:\n",
+    "            df,response = make_api_request(access_token, url, page)\n",
+    "\n",
+    "            if df is None or df.empty:\n",
+    "                print(f\"No more data for {url}. Skipping...\")\n",
+    "                break\n",
+    "\n",
+    "            save_data_to_civis(df, table_name)\n",
+    "\n",
+    "            # Check for a pagination header to determine if there's a next page\n",
+    "            next_page_url = response.headers.get('Link', '').split(';')[0].strip('< >')\n",
+    "            print('--------------------------------------------------------------------')\n",
+    "            print(next_page_url)\n",
+    "            if not next_page_url:\n",
+    "                break\n",
+    "\n",
+    "            page += 1\n",
+    "print('All Data Has Been Successfully Loaded gpap staging')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
