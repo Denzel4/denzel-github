@@ -1,0 +1,7 @@
+/*
+  This is a Versioning tutorial query 
+*/
+
+select 
+    *
+from public.fx_rates__2019
