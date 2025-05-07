@@ -1,0 +1,339 @@
+drop table if exists gpap_reporting.hs_j01_data;
+
+create table gpap_reporting.hs_j01_data (
+    cam varchar(1024),
+    cod varchar(1024),
+    nam varchar(1024),
+    dat date,
+    hsclick int,
+    hsdeliver int,
+    hsopen int,
+    hssent int,
+    hsunsub int,
+    hshardbounce int
+);
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '1.1 - Regular Receipt Email', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '255985906', '247106620', '226104051', '226103143');
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '1.2 - One-Off Receipt Email', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '247105930', '226103571', '226104294', '255984492');
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '2.0 - Welcome Email New', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '272956688', '264957148', '264956321');
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '5.0 - Educate Email', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '213208021', '213438731', '233452846', '214177603', '272956915', '220314216', '212882698', '233451025', '233451766', '247106039');
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '6.0 - Demonstrate Email', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '213438730', '214176279', '213208163', '233452748', '272956914', '233451037', '247106626', '212881977', '233450965');
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '7.0 - Community Email', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '212882049', '233451913', '233450974', '272956769', '214177795', '233450930', '213208316', '213438881', '247106897');
+
+insert into gpap_reporting.hs_j01_data
+select campaign_id  as id, '8.0 - Get Involved Email', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed, counters_bounce from gpap_staging.hs_campaigns where campaign_id    in ( '213208213', '272956768', '213438926', '214176780', '233452258', '247106706', '212881865', '233452944', '233450964');
+
+--select * from gpap_reporting.hs_j01_data;
+
+
+
+drop table if exists gpap_reporting.hs_j01_monthly_data;
+
+create table gpap_reporting.hs_j01_monthly_data (
+    yyyy varchar(1024),
+    mmm varchar(1024),
+    cod varchar(1024),    
+    hssent int,
+    hsdelivered int,
+    hsopen int,
+    hsclick int,
+    deliverability int,
+    openrate int,
+    clickrate int,
+    clickthroughrate int
+);
+
+drop table if exists gpap_reporting.hs_j01_monthly_datax;
+
+create table gpap_reporting.hs_j01_monthly_datax (
+    yyyyx varchar(1024),
+    mmmx varchar(1024),
+    codx varchar(1024),    
+    hssentx int,
+    hsdeliveredx int,
+    hsopenx int,
+    hsclickx int,
+    deliverabilityx int,
+    openratex int,
+    clickratex int,
+    clickthroughratex int
+);
+
+insert into gpap_reporting.hs_j01_monthly_datax
+select datepart('year',created), datepart('month', created), 'SENT', count(distinct(sentby_id)), null, null, null, null, null, null, null from gpap_staging.hs_email_events where email_id    in ( '255985906', '247106620', '226104051', '226103143') and type = 'SENT'  group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j01_monthly_datax
+select datepart('year',created), datepart('month', created), 'DELIVERED', null, count(distinct(sentby_id   )), null, null, null, null, null, null from gpap_staging.hs_email_events where email_id  as id in ( '255985906', '247106620', '226104051', '226103143') and type = 'DELIVERED'  group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j01_monthly_datax
+select datepart('year',created), datepart('month', created), 'OPEN', null, null, count(distinct(sentby_id   )), null, null, null, null, null from gpap_staging.hs_email_events where email_id  as id in ( '255985906', '247106620', '226104051', '226103143') and type = 'OPEN'  and filteredevent = 't' group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j01_monthly_datax
+select datepart('year',created), datepart('month', created), 'CLICK', null, null, null, count(distinct(sentby_id  as id)), null, null, null, null from gpap_staging.hs_email_events where email_id    in ( '255985906', '247106620', '226104051', '226103143') and type = 'CLICK'  and filteredevent = 't' group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j01_monthly_data
+select * from gpap_reporting.hs_j01_monthly_datax where codx = 'OPEN';
+
+update gpap_reporting.hs_j01_monthly_data
+set hssent = hssentx from gpap_reporting.hs_j01_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'SENT';
+
+update gpap_reporting.hs_j01_monthly_data
+set hsdelivered = hsdeliveredx from gpap_reporting.hs_j01_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'DELIVERED';
+
+update gpap_reporting.hs_j01_monthly_data
+set hsclick = hsclickx from gpap_reporting.hs_j01_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'CLICK';
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' January' where mmm = 1;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' February' where mmm = 2;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' March' where mmm = 3;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' April' where mmm = 4;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' May' where mmm = 5;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' June' where mmm = 6;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' July' where mmm = 7;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' August' where mmm = 8;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + '0' + mmm + ' September' where mmm = 9;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + mmm + ' October' where mmm = 10;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + mmm + ' November' where mmm = 11;
+
+update gpap_reporting.hs_j01_monthly_data
+set cod = yyyy + mmm + ' December' where mmm = 12;
+
+update gpap_reporting.hs_j01_monthly_data
+set deliverability = hsdelivered*100/hssent;
+
+update gpap_reporting.hs_j01_monthly_data
+set openrate = hsopen*100/hssent;
+
+update gpap_reporting.hs_j01_monthly_data
+set clickrate = hsclick*100/hssent;
+
+update gpap_reporting.hs_j01_monthly_data
+set clickthroughrate = hsclick*100/hsopen;
+
+drop table if exists gpap_reporting.hs_j01_monthly_datax;
+
+drop table if exists gpap_reporting.hs_j09_data;
+
+create table gpap_reporting.hs_j09_data (
+    cam varchar(1024),
+    cod varchar(1024),
+    nam varchar(1024),
+    dat date,
+    hsclick int,
+    hsdeliver int,
+    hsopen int,
+    hssent int,
+    hsunsub int
+);
+
+insert into gpap_reporting.hs_j09_data
+select null, '1.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('280102919', '278971510', '280103028', '276864682', '277652358'); --( '276864682', '277652358');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '1.2 - WA Gas', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278772909', '280103795', '278971802', '278606517', '280103021'); --( '278606517');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '1.3 - Electrify', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278772908', '278611501', '280103029', '278971801', '280102872'); --( '278611501');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '1.4 - Pacific', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278772910', '278971511', '278611699', '280103022', '280103471'); --( '278611699');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '1.5 - Plastics', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('280103456', '278611694', '278772906', '278971656', '280103469'); --( '278611694');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '1.6 - PTO', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278611961', '280102280', '278772336', '278971950', '280103324'); --( '278611961');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '1.7 - DSM', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('280103794', '278773150', '280103457', '278971366', '278612352'); --( '278612352');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '2.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278971953', '278611966', '278773057', '280103326', '280103020'); --( '278611966');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id   , '2.2 - WA Gas', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id  as id in ('278970822', '280103220', '278614098', '280103308', '278772338'); --( '278614098');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id   , '2.3 - Electrify', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id  as id in ('278611931', '278772380', '280102390', '278971655', '280103455'); --( '278611931');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '2.4 - Pacific', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('280102928', '278611919', '278971800', '280102568', '278773056'); --( '278611919');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '2.5 - Plastics', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278773149', '278613449', '278971314', '280102929', '280102380'); --( '278613449');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '2.6 - PTO', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278613567', '280102582', '278773194', '280103018', '278971949'); --( '278613567');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '2.7 - DSM', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278613450', '280102918', '278971509', '278772490', '280102293'); --( '278613450');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '3.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278971556', '278772907', '280103019', '278614037', '280103325'); --( '278614037');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '4.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278613823', '278772379', '278971654', '280102569', '280103468'); --( '278613823');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '5.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278772381', '280102832', '278613480', '278971365', '280102570'); --( '278613480');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '6.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278613836', '280103307', '278772337', '280103470', '278971951'); --( '278613836');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '7.1 - Generic', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('278971952', '280102930', '280102571', '278613488', '278773107'); --( '278613488');
+
+insert into gpap_reporting.hs_j09_data
+select campaign_id  as id, '8.1 - Thank You', name, __last_time_updated::date, counters_click, counters_delivered, counters_open, counters_sent, counters_status_change as counters_unsubscribed from gpap_staging.hs_campaigns where campaign_id    in ('280360231', '280360958'); --( '278613488');
+
+--select * from gpap_reporting.hs_j09_data;
+
+drop table if exists gpap_reporting.hs_j09_monthly_data;
+
+create table gpap_reporting.hs_j09_monthly_data (
+    yyyy varchar(1024),
+    mmm varchar(1024),
+    cod varchar(1024),    
+    hssent int,
+    hsdelivered int,
+    hsopen int,
+    hsclick int,
+    deliverability int,
+    openrate int,
+    clickrate int,
+    clickthroughrate int,
+    sms int
+);
+
+drop table if exists gpap_reporting.hs_j09_monthly_datax;
+
+create table gpap_reporting.hs_j09_monthly_datax (
+    yyyyx varchar(1024),
+    mmmx varchar(1024),
+    codx varchar(1024),    
+    hssentx int,
+    hsdeliveredx int,
+    hsopenx int,
+    hsclickx int,
+    deliverabilityx int,
+    openratex int,
+    clickratex int,
+    clickthroughratex int,
+    smsx int
+);
+
+--('280102919', '278971510', '280103028', '276864682', '277652358', '278772909', '280103795', '278971802', '278606517', '280103021', '278772908', '278611501', '280103029', '278971801', '280102872', '278772910', '278971511', '278611699', '280103022', '280103471', '280103456', '278611694', '278772906', '278971656', '280103469', '278611961', '280102280', '278772336', '278971950', '280103324', '280103794', '278773150', '280103457', '278971366', '278612352', '278971953', '278611966', '278773057', '280103326', '280103020', '278970822', '280103220', '278614098', '280103308', '278772338', '278611931', '278772380', '280102390', '278971655', '280103455', '280102928', '278611919', '278971800', '280102568', '278773056', '278773149', '278613449', '278971314', '280102929', '280102380', '278613567', '280102582', '278773194', '280103018', '278971949', '278613450', '280102918', '278971509', '278772490', '280102293', '278971556', '278772907', '280103019', '278614037', '280103325', '278613823', '278772379', '278971654', '280102569', '280103468', '278772381', '280102832', '278613480', '278971365', '280102570', '278613836', '280103307', '278772337', '280103470', '278971951', '278971952', '280102930', '280102571', '278613488', '278773107', '280360231', '280360958')
+
+insert into gpap_reporting.hs_j09_monthly_datax
+select datepart('year',created), datepart('month', created), 'SENT', count(distinct(sentby_id )), null, null, null, null, null, null, null, null from gpap_staging.hs_email_events where emailcampaigncampaign_id    in ('280102919', '278971510', '280103028', '276864682', '277652358', '278772909', '280103795', '278971802', '278606517', '280103021', '278772908', '278611501', '280103029', '278971801', '280102872', '278772910', '278971511', '278611699', '280103022', '280103471', '280103456', '278611694', '278772906', '278971656', '280103469', '278611961', '280102280', '278772336', '278971950', '280103324', '280103794', '278773150', '280103457', '278971366', '278612352', '278971953', '278611966', '278773057', '280103326', '280103020', '278970822', '280103220', '278614098', '280103308', '278772338', '278611931', '278772380', '280102390', '278971655', '280103455', '280102928', '278611919', '278971800', '280102568', '278773056', '278773149', '278613449', '278971314', '280102929', '280102380', '278613567', '280102582', '278773194', '280103018', '278971949', '278613450', '280102918', '278971509', '278772490', '280102293', '278971556', '278772907', '280103019', '278614037', '280103325', '278613823', '278772379', '278971654', '280102569', '280103468', '278772381', '280102832', '278613480', '278971365', '280102570', '278613836', '280103307', '278772337', '280103470', '278971951', '278971952', '280102930', '280102571', '278613488', '278773107', '280360231', '280360958') and type = 'SENT'  group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j09_monthly_datax
+select datepart('year',created), datepart('month', created), 'DELIVERED', null, count(distinct(sentby_id )), null, null, null, null, null, null, null from gpap_staging.hs_email_events where emailcampaigncampaign_id    in ('280102919', '278971510', '280103028', '276864682', '277652358', '278772909', '280103795', '278971802', '278606517', '280103021', '278772908', '278611501', '280103029', '278971801', '280102872', '278772910', '278971511', '278611699', '280103022', '280103471', '280103456', '278611694', '278772906', '278971656', '280103469', '278611961', '280102280', '278772336', '278971950', '280103324', '280103794', '278773150', '280103457', '278971366', '278612352', '278971953', '278611966', '278773057', '280103326', '280103020', '278970822', '280103220', '278614098', '280103308', '278772338', '278611931', '278772380', '280102390', '278971655', '280103455', '280102928', '278611919', '278971800', '280102568', '278773056', '278773149', '278613449', '278971314', '280102929', '280102380', '278613567', '280102582', '278773194', '280103018', '278971949', '278613450', '280102918', '278971509', '278772490', '280102293', '278971556', '278772907', '280103019', '278614037', '280103325', '278613823', '278772379', '278971654', '280102569', '280103468', '278772381', '280102832', '278613480', '278971365', '280102570', '278613836', '280103307', '278772337', '280103470', '278971951', '278971952', '280102930', '280102571', '278613488', '278773107', '280360231', '280360958') and type = 'DELIVERED'  group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j09_monthly_datax
+select datepart('year',created), datepart('month', created), 'OPEN', null, null, count(distinct(sentby_campaign_id )), null, null, null, null, null, null from gpap_staging.hs_email_events where emailcampaigncampaign_id    in ('280102919', '278971510', '280103028', '276864682', '277652358', '278772909', '280103795', '278971802', '278606517', '280103021', '278772908', '278611501', '280103029', '278971801', '280102872', '278772910', '278971511', '278611699', '280103022', '280103471', '280103456', '278611694', '278772906', '278971656', '280103469', '278611961', '280102280', '278772336', '278971950', '280103324', '280103794', '278773150', '280103457', '278971366', '278612352', '278971953', '278611966', '278773057', '280103326', '280103020', '278970822', '280103220', '278614098', '280103308', '278772338', '278611931', '278772380', '280102390', '278971655', '280103455', '280102928', '278611919', '278971800', '280102568', '278773056', '278773149', '278613449', '278971314', '280102929', '280102380', '278613567', '280102582', '278773194', '280103018', '278971949', '278613450', '280102918', '278971509', '278772490', '280102293', '278971556', '278772907', '280103019', '278614037', '280103325', '278613823', '278772379', '278971654', '280102569', '280103468', '278772381', '280102832', '278613480', '278971365', '280102570', '278613836', '280103307', '278772337', '280103470', '278971951', '278971952', '280102930', '280102571', '278613488', '278773107', '280360231', '280360958' ) and type = 'OPEN'  group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j09_monthly_datax
+select datepart('year',created), datepart('month', created), 'CLICK', null, null, null, count(distinct(sentby_campaign_id)), null, null, null, null, null from gpap_staging.hs_email_events where emailcampaigncampaign_id    in ('280102919', '278971510', '280103028', '276864682', '277652358', '278772909', '280103795', '278971802', '278606517', '280103021', '278772908', '278611501', '280103029', '278971801', '280102872', '278772910', '278971511', '278611699', '280103022', '280103471', '280103456', '278611694', '278772906', '278971656', '280103469', '278611961', '280102280', '278772336', '278971950', '280103324', '280103794', '278773150', '280103457', '278971366', '278612352', '278971953', '278611966', '278773057', '280103326', '280103020', '278970822', '280103220', '278614098', '280103308', '278772338', '278611931', '278772380', '280102390', '278971655', '280103455', '280102928', '278611919', '278971800', '280102568', '278773056', '278773149', '278613449', '278971314', '280102929', '280102380', '278613567', '280102582', '278773194', '280103018', '278971949', '278613450', '280102918', '278971509', '278772490', '280102293', '278971556', '278772907', '280103019', '278614037', '280103325', '278613823', '278772379', '278971654', '280102569', '280103468', '278772381', '280102832', '278613480', '278971365', '280102570', '278613836', '280103307', '278772337', '280103470', '278971951', '278971952', '280102930', '280102571', '278613488', '278773107', '280360231', '280360958' ) and type = 'CLICK'  group by datepart('year',created), datepart('month', created) order by datepart('year',created), datepart('month', created);
+
+insert into gpap_reporting.hs_j09_monthly_datax
+select datepart('year', c.created_at::date), datepart('month', c.created_at::date), 'SMS', null, null, null, null, null, null, null, null, count(distinct(a.vcampaign_id  as id)) from gpap_staging.hs_contacts a, gpap_staging.hs_contact_tasks b, gpap_staging.hs_tasks c where a.vcampaign_id  as id = b.contact_campaign_id  as id and b.task_campaign_id  as id = c.task_campaign_id  as id and c.task_subject = 'Sent SMS to Contact' and a.properties_email in ( select x.email from gpap_staging.sf_campaign_member y, gpap_staging.sf_contact x where y.contactcampaign_id  as id = x.campaign_id  as id and y.campaigncampaign_id  as id = '7012s000000HXL8AAO' ) group by datepart('year', c.created_at::date), datepart('month', c.created_at::date) order by datepart('year', c.created_at::date), datepart('month', c.created_at::date);
+
+insert into gpap_reporting.hs_j09_monthly_data
+select * from gpap_reporting.hs_j09_monthly_datax where codx = 'OPEN';
+
+update gpap_reporting.hs_j09_monthly_data
+set hssent = hssentx from gpap_reporting.hs_j09_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'SENT';
+
+update gpap_reporting.hs_j09_monthly_data
+set hsdelivered = hsdeliveredx from gpap_reporting.hs_j09_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'DELIVERED';
+
+update gpap_reporting.hs_j09_monthly_data
+set hsclick = hsclickx from gpap_reporting.hs_j09_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'CLICK';
+
+update gpap_reporting.hs_j09_monthly_data
+set sms = smsx from gpap_reporting.hs_j09_monthly_datax where yyyyx = yyyy and mmmx = mmm and codx = 'SMS';
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' January' where mmm = 1;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' February' where mmm = 2;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' March' where mmm = 3;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' April' where mmm = 4;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' May' where mmm = 5;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' June' where mmm = 6;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' July' where mmm = 7;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' August' where mmm = 8;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + '0' + mmm + ' September' where mmm = 9;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + mmm + ' October' where mmm = 10;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + mmm + ' November' where mmm = 11;
+
+update gpap_reporting.hs_j09_monthly_data
+set cod = yyyy + mmm + ' December' where mmm = 12;
+
+update gpap_reporting.hs_j09_monthly_data
+set deliverability = hsdelivered*100/hssent;
+
+update gpap_reporting.hs_j09_monthly_data
+set openrate = hsopen*100/hssent;
+
+update gpap_reporting.hs_j09_monthly_data
+set clickrate = hsclick*100/hssent;
+
+update gpap_reporting.hs_j09_monthly_data
+set clickthroughrate = hsclick*100/hsopen;
+
+drop table if exists gpap_reporting.hs_j09_monthly_datax;
+
+--select * from gpap_reporting.hs_j09_monthly_data
