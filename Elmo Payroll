@@ -1,0 +1,145 @@
+import requests
+import pandas as pd
+from requests.auth import HTTPBasicAuth
+import civis
+import os
+import time
+
+# --- Config ---
+api_key = os.environ['API_KEY']
+BUSINESS_ID = os.environ['BUSINESS_ID']
+CIVIS_DB = 873
+API_KEY = api_key                           
+BASE_URL = f"https://api.yourpayroll.com.au/api/v2/business/{BUSINESS_ID}"
+AUTH = HTTPBasicAuth(API_KEY, "")                 
+SCHEMA = "gpap_staging"
+
+# Drop tables
+DATABASE_ID = 873  
+
+def drop_tables():
+    tables = [
+        'payroll_leave_categories','payroll_leave_requests','payroll_employees',
+        'payroll_leave_balances'
+    ]
+
+    for table in tables:
+        sql = f"drop table if exists gpap_staging.{table} cascade;"
+        print(f"Executing: {sql}")
+        civis.io.query_civis(sql, DATABASE_ID).result() 
+
+drop_tables()
+# --- Fetch Helper ---
+def fetch_api_data(endpoint):
+    """Fetch JSON from a KeyPay API endpoint with graceful error handling."""
+    try:
+        response = requests.get(endpoint, auth=AUTH)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("data", data) if isinstance(data, dict) else data
+    except Exception as e:
+        print(f" Error fetching {endpoint}: {e}")
+        return []
+
+# --- Save Function ---
+def save_to_civis(df, table_name):
+    """Lowercase all columns and save to Civis."""
+    if df.empty:
+        print(f" No data to save for {table_name}")
+        return
+    df.columns = df.columns.str.lower()
+    try:
+        civis.io.dataframe_to_civis(
+            df,
+            database=CIVIS_DB,
+            table=f"{SCHEMA}.{table_name}",
+            existing_table_rows="truncate"   
+        )
+        print(f" Saved {len(df)} records to Civis table: {SCHEMA}.{table_name}")
+    except Exception as e:
+        print(f" Error saving {table_name} to Civis: {e}")
+
+# --- Employees ---
+def get_employees():
+    url = f"{BASE_URL}/employee/unstructured"
+    cols = [
+        "employingentityabn","employingentityid","previoussurname","australianresident",
+        "hasapprovedworkingholidayvisa","workingholidayvisacountry","workingholidayvisastartdate",
+        "isseasonalworker","employmenttype","terminationreason","gender","anniversarydate","tags",
+        "jobtitle","leavetemplate","rosteringnotificationchoices","leaveaccrualstartdatetype",
+        "leaveyearstart","id","title","firstname","middlename","surname","preferredname",
+        "dateofbirth","residentialcountry","startdate","enddate","hoursperweek","worktypes",
+        "status","datecreated","reportingdimensionvalues"
+    ]
+    data = fetch_api_data(url)
+    df = pd.DataFrame(data)
+    df.columns = df.columns.str.lower()
+    df = df[[c for c in cols if c in df.columns]]
+    print(f" Employees: {len(df)} records")
+    save_to_civis(df, "payroll_employees")
+    return df
+
+# --- Leave Request ---
+def get_leave_categories():
+    url = f"{BASE_URL}/leavecategory"
+    cols = [
+        "contingentperiod","entitlementperiod","leaveloading","unittype","leavecategorytype",
+        "leaveaccrualrule","transferonterminationtopaycategoryid","id","name","units",
+        "automaticallyaccrues","isprivate","excludefromterminationpayout","externalid",
+        "source","isbalanceuntracked","isnameprivate","leaveunittype",
+        "accruesfirstpayrunperperiodonly","preventnegativebalanceunpaidleavecategoryid",
+        "leaveentitlement","ispayrunaccrual"
+    ]
+    data = fetch_api_data(url)
+    df = pd.DataFrame(data)
+    df.columns = df.columns.str.lower()
+    df = df[[c for c in cols if c in df.columns]]
+    print(f" Leave Categories: {len(df)} records")
+    save_to_civis(df, "payroll_leave_categories")
+    return df
+
+# --- Leave Request ---
+def get_leave_requests():
+    url = f"{BASE_URL}/leaverequest"
+    cols = [
+        "totalhours","hoursapplied","id","employeeid","leavecategoryid","employee",
+        "leavecategory","fromdate","todate","notes","status","attachmentid"
+    ]
+    data = fetch_api_data(url)
+    df = pd.DataFrame(data)
+    df.columns = df.columns.str.lower()
+    df = df[[c for c in cols if c in df.columns]]
+    print(f" Leave Requests: {len(df)} records")
+    save_to_civis(df, "payroll_leave_requests")
+    return df
+
+# ---  Leave Balances ---
+def get_leave_balances():
+    print(" Fetching leave balances for all employees...")
+    employees = fetch_api_data(f"{BASE_URL}/employee/unstructured")
+    employee_ids = [e["id"] for e in employees if "id" in e]
+
+    all_balances = []
+    for emp_id in employee_ids:
+        url = f"{BASE_URL}/employee/{emp_id}/leavebalances"
+        balances = fetch_api_data(url)
+        for b in balances:
+            b["employeeid"] = emp_id  # Add employee reference
+        all_balances.extend(balances)
+        time.sleep(0.2)  # prevent hitting API rate limits
+
+    if not all_balances:
+        print("No leave balances found.")
+        return pd.DataFrame()
+
+    df = pd.DataFrame(all_balances)
+    df.columns = df.columns.str.lower()
+    print(f"Leave Balances: {len(df)} records for {len(employee_ids)} employees")
+    save_to_civis(df, "payroll_leave_balances")
+    return df
+# --- Call/Run All functions ---
+get_employees()
+get_leave_categories()
+get_leave_requests()
+get_leave_balances()
+print("\n All tables fetched and saved successfully to Civis.")
