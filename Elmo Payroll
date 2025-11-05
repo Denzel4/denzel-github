@@ -115,18 +115,36 @@ def get_leave_requests():
 
 # ---  Leave Balances ---
 def get_leave_balances():
-    print(" Fetching leave balances for all employees...")
-    employees = fetch_api_data(f"{BASE_URL}/employee/unstructured")
-    employee_ids = [e["id"] for e in employees if "id" in e]
+    print("Fetching leave balances for all employees...")
+
+    # Get leave requests
+    leave_requests = fetch_api_data(f"{BASE_URL}/leaverequest")
+
+    # Normalize keys to lowercase BEFORE extracting IDs
+    leave_requests = [
+        {k.lower(): v for k, v in record.items()} 
+        for record in leave_requests
+    ]
+
+    # safely extract employeeid
+    employee_ids = list({r["employeeid"] for r in leave_requests if "employeeid" in r})
+
+    print(f"Found {len(employee_ids)} unique employees with leave requests")
 
     all_balances = []
+
     for emp_id in employee_ids:
         url = f"{BASE_URL}/employee/{emp_id}/leavebalances"
         balances = fetch_api_data(url)
+
+        # Normalize returned balances 
+        balances = [{k.lower(): v for k, v in b.items()} for b in balances]
+
         for b in balances:
-            b["employeeid"] = emp_id  # Add employee reference
+            b["employeeid"] = emp_id
+
         all_balances.extend(balances)
-        time.sleep(0.2)  # prevent hitting API rate limits
+        time.sleep(0.2)  # Avoid rate limit
 
     if not all_balances:
         print("No leave balances found.")
@@ -134,9 +152,12 @@ def get_leave_balances():
 
     df = pd.DataFrame(all_balances)
     df.columns = df.columns.str.lower()
+
     print(f"Leave Balances: {len(df)} records for {len(employee_ids)} employees")
     save_to_civis(df, "payroll_leave_balances")
+
     return df
+
 # --- Call/Run All functions ---
 get_employees()
 get_leave_categories()
