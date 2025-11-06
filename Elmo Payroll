@@ -20,7 +20,7 @@ DATABASE_ID = 873
 def drop_tables():
     tables = [
         'payroll_leave_categories','payroll_leave_requests','payroll_employees',
-        'payroll_leave_balances'
+        'payroll_leave_balances','payroll_employees_details'
     ]
 
     for table in tables:
@@ -113,21 +113,35 @@ def get_leave_requests():
     save_to_civis(df, "payroll_leave_requests")
     return df
 
+
 # ---  Leave Balances ---
 def get_leave_balances():
     print("Fetching leave balances for all employees...")
 
-    # Get leave requests
-    leave_requests = fetch_api_data(f"{BASE_URL}/leaverequest")
+    # Get employee details
+    employee_details = fetch_api_data(f"{BASE_URL}/employee//details")
+    df1 = pd.DataFrame(employee_details)
+    # Normalize col names to lowercase
+    df1.columns = df1.columns.str.lower()
 
-    # Normalize keys to lowercase BEFORE extracting IDs
-    leave_requests = [
+    #  required fields
+    cols = [
+        "id","title","firstname","preferredname","middlename","surname","gender",
+        "dateofbirth","anniversarydate","externalid","emailaddress","startdate","enddate"
+    ]
+
+    print(f"Employees Details: {len(df1)} records")
+
+    save_to_civis(df1, "payroll_employees_details")
+
+    # Normalize keys to lowercase 
+    employee_details = [
         {k.lower(): v for k, v in record.items()} 
-        for record in leave_requests
+        for record in employee_details
     ]
 
     # safely extract employeeid
-    employee_ids = list({r["employeeid"] for r in leave_requests if "employeeid" in r})
+    employee_ids = list({r["id"] for r in employee_details if "id" in r})
 
     print(f"Found {len(employee_ids)} unique employees with leave requests")
 
@@ -158,9 +172,10 @@ def get_leave_balances():
 
     return df
 
-# --- Call/Run All functions ---
+
 get_employees()
 get_leave_categories()
 get_leave_requests()
 get_leave_balances()
-print("\n All tables fetched and saved successfully to Civis.")
+
+
