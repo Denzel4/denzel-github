@@ -132,7 +132,7 @@ def get_leave_balances():
     ]
 
     print(f"Employees Details: {len(df1)} records")
-
+    df1 = df1[[c for c in cols if c in df1.columns]]
     save_to_civis(df1, "payroll_employees_details")
 
     # Normalize keys to lowercase 
