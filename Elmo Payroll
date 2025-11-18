@@ -21,7 +21,7 @@ DATABASE_ID = 873
 def drop_tables():
     tables = [
         'payroll_leave_categories','payroll_leave_requests','payroll_employees',
-        'payroll_leave_balances','payroll_employees_details'
+        'payroll_leave_balances','payroll_employees_details','payroll_employees_pay_details'
     ]
 
     for table in tables:
@@ -172,7 +172,7 @@ def get_leave_balances():
     save_to_civis(df, "payroll_leave_balances")
 
     return df
-    
+
 # get payrates
 def get_pay_details():
     print("Fetching employee details (ID list)...")
