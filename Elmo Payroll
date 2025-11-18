@@ -172,11 +172,88 @@ def get_leave_balances():
     save_to_civis(df, "payroll_leave_balances")
 
     return df
+    
+# get payrates
+def get_pay_details():
+    print("Fetching employee details (ID list)...")
+
+    # Fetch employee details list
+    url = f"{BASE_URL}/employee/details"
+    details = fetch_api_data(url)
+
+    if not details:
+        print("No employee details found.")
+        return pd.DataFrame()
+
+    df_details = pd.DataFrame(details)
+    df_details.columns = df_details.columns.str.lower()
+
+    if "id" not in df_details.columns:
+        print("'id' column missing from employee/details")
+        return pd.DataFrame()
+
+    employee_ids = df_details["id"].tolist()
+
+    # List to store full employee records
+    all_records = []
+
+    for emp_id in employee_ids:
+        detail_url = f"{BASE_URL}/employee/{emp_id}"
+        full_data = fetch_api_data(detail_url)
+
+        if not full_data:
+            continue
+
+        # Convert nested JSON to flat dict if needed
+        if isinstance(full_data, dict):
+            all_records.append(full_data)
+        else:
+            all_records.append({})  
+        # fallback
+
+    # Convert to DataFrame
+    if not all_records:
+        print(" No full employee records fetched.")
+        return pd.DataFrame()
+
+    df = pd.DataFrame(all_records)
+    df.columns = df.columns.str.lower()
+
+    # Select only your required columns
+    required_cols = [
+        "id",
+        "hoursperday",
+        "employmenttype",
+        "terminationreason",
+        "payratetemplate",
+        "payschedule",
+        "rate",
+        "rateunit",
+        "hoursperweek",
+        "status"
+    ]
+
+    available_cols = [c for c in required_cols if c in df.columns]
+    missing_cols = [c for c in required_cols if c not in df.columns]
+
+    if missing_cols:
+        print(f"Missing columns skipped: {missing_cols}")
+
+    df = df[available_cols]
+
+    print(f"Full Employees: {len(df)} records, {len(df.columns)} columns retained")
+
+    #  Save to Civis
+    save_to_civis(df, "payroll_employees_pay_details")
+
+    return df
+
 
 
 get_employees()
 get_leave_categories()
 get_leave_requests()
 get_leave_balances()
+get_pay_details()
 
 
